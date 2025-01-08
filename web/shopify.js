@@ -2,6 +2,9 @@ import { BillingInterval, LATEST_API_VERSION } from "@shopify/shopify-api";
 import { shopifyApp } from "@shopify/shopify-app-express";
 import { SQLiteSessionStorage } from "@shopify/shopify-app-session-storage-sqlite";
 import { restResources } from "@shopify/shopify-api/rest/admin/2024-10";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const DB_PATH = `${process.cwd()}/database.sqlite`;
 

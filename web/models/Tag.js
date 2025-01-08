@@ -1,8 +1,8 @@
-// 2. models/Tag.js
+// models/Tag.js
 import { DataTypes } from 'sequelize';
 
 const Tag = (sequelize) => {
-  const Tag = sequelize.define('Tag', {
+  return sequelize.define('Tag', {
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
@@ -10,16 +10,16 @@ const Tag = (sequelize) => {
     },
     name: {
       type: DataTypes.STRING,
-      allowNull: false,
-      unique: true
+      allowNull: false
     },
     shopDomain: {
       type: DataTypes.STRING,
       allowNull: false
     }
+  }, {
+    tableName: 'tags',  // Explicitly set table name
+    timestamps: true    // Add this if you want created_at and updated_at
   });
-
-  return Tag;
 };
 
 export default Tag;

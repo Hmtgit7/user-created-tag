@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "48a0f5e2ec6e42fae077af3ea19bb608"
-application_url = "https://ranked-psp-remove-feelings.trycloudflare.com"
+application_url = "https://usually-rebate-reasonably-restrictions.trycloudflare.com"
 embedded = true
 name = "user-created-tag"
 handle = "user-created-tag"
@@ -15,9 +15,9 @@ scopes = "write_products,write_customers,write_orders, write_draft_orders, write
 
 [auth]
 redirect_urls = [
-  "https://ranked-psp-remove-feelings.trycloudflare.com/auth/callback",
-  "https://ranked-psp-remove-feelings.trycloudflare.com/auth/shopify/callback",
-  "https://ranked-psp-remove-feelings.trycloudflare.com/api/auth/callback"
+  "https://usually-rebate-reasonably-restrictions.trycloudflare.com/auth/callback",
+  "https://usually-rebate-reasonably-restrictions.trycloudflare.com/auth/shopify/callback",
+  "https://usually-rebate-reasonably-restrictions.trycloudflare.com/api/auth/callback"
 ]
 
 [pos]

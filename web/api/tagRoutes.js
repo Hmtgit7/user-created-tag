@@ -31,67 +31,6 @@ router.get('/api/tags', async (req, res) => {
     }
 });
 
-
-router.post('/api/products/:productId/tags', async (req, res) => {
-    const { productId } = req.params;
-    const { tagId } = req.body;
-    const session = res.locals.shopify.session;
-
-    try {
-        const tag = await Tag.findByPk(tagId);
-        if (!tag) {
-            return res.status(404).json({ error: 'Tag not found' });
-        }
-
-        const client = new shopify.api.clients.Rest({
-            session: session,
-            apiVersion: '2025-01'  // Explicitly set API version
-        });
-
-        const productResponse = await client.get({
-            path: `products/${productId}`,
-        });
-
-        const currentTags = productResponse.body.product.tags ?
-            productResponse.body.product.tags.split(', ') : [];
-
-        if (!currentTags.includes(tag.name)) {
-            currentTags.push(tag.name);
-        }
-
-
-        await client.put({
-            path: `products/${productId}`,
-            data: {
-                product: {
-                    id: productId,
-                    tags: currentTags.join(', ')
-                }
-            }
-        });
-
-        await ProductTag.findOrCreate({
-            where: {
-                shopifyProductId: productId,
-                tagId: tagId,
-                shopDomain: session.shop
-            }
-        });
-
-        const updatedTags = await Tag.findAll({
-            where: {
-                name: currentTags,
-                shopDomain: session.shop
-            }
-        });
-
-        res.status(200).json(updatedTags);
-    } catch (error) {
-        console.error('Error adding tag:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
 // Update the get route as well
 router.get('/api/products/:productId/tags', async (req, res) => {
     const { productId } = req.params;
@@ -126,67 +65,77 @@ router.get('/api/products/:productId/tags', async (req, res) => {
     }
 });
 
-
-
+// Add tag to product
 router.post('/api/products/:productId/tags', async (req, res) => {
     const { productId } = req.params;
     const { tagId } = req.body;
     const session = res.locals.shopify.session;
 
     try {
-        // Find the tag to be added
-        const tag = await Tag.findByPk(tagId);
+        // Find the tag in database
+        const tag = await Tag.findOne({
+            where: {
+                id: tagId,
+                shopDomain: session.shop
+            }
+        });
+
         if (!tag) {
             return res.status(404).json({ error: 'Tag not found' });
         }
 
+        // Create Shopify client
         const client = new shopify.api.clients.Rest({
             session: session
         });
 
-        // First get current product tags
+        // Get current product from Shopify
         const productResponse = await client.get({
             path: `products/${productId}`
         });
 
-        // Parse existing tags and add new tag
+        // Parse existing tags
         const currentTags = productResponse.body.product.tags ?
             productResponse.body.product.tags.split(', ') : [];
 
-        // Check if tag already exists
+        // Add new tag if it doesn't exist
         if (!currentTags.includes(tag.name)) {
             currentTags.push(tag.name);
+
+            // Update product tags in Shopify
+            await client.put({
+                path: `products/${productId}`,
+                data: {
+                    product: {
+                        id: productId,
+                        tags: currentTags.join(', ')
+                    }
+                }
+            });
         }
 
-        // Update product with new tags
-        const response = await client.put({
-            path: `products/${productId}`,
-            data: {
-                product: {
-                    id: productId,
-                    tags: currentTags.join(', ')
-                }
-            }
-        });
-
-        // Create product-tag association
+        // Create product-tag association in database
         await ProductTag.findOrCreate({
             where: {
                 shopifyProductId: productId,
-                tagId: tagId,
+                tagId: tag.id,
                 shopDomain: session.shop
             }
         });
 
-        // Fetch updated tags to return
-        const updatedTags = await Tag.findAll({
-            where: {
-                name: currentTags,
-                shopDomain: session.shop
-            }
+        // Get all tags for the product
+        const productTags = await Tag.findAll({
+            include: [{
+                model: ProductTag,
+                as: 'productTags',
+                where: {
+                    shopifyProductId: productId,
+                    shopDomain: session.shop
+                }
+            }]
         });
 
-        res.status(200).json(updatedTags);
+        res.status(200).json(productTags);
     } catch (error) {
         console.error('Error adding tag:', error);
         res.status(500).json({ error: error.message });

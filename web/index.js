@@ -12,6 +12,9 @@ import PrivacyWebhookHandlers from "./privacy.js";
 import { sequelize } from './models/index.js';
 import tagRoutes from './api/tagRoutes.js';
 
+import dotenv from "dotenv";
+dotenv.config();
+
 const PORT = parseInt(
   process.env.BACKEND_PORT || process.env.PORT || "3000",
   10
