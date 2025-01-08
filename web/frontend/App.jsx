@@ -2,6 +2,7 @@ import { BrowserRouter } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { NavMenu } from "@shopify/app-bridge-react";
 import Routes from "./Routes";
+import { Frame } from '@shopify/polaris';
 
 import { QueryProvider, PolarisProvider, NavigationBar, AppBridgeProvider, Skeleton } from "./components";
 import { TopBar } from "./components";
@@ -23,21 +24,24 @@ export default function App() {
   }, [showLayout]);
 
   return (
+
     <PolarisProvider>
       <BrowserRouter>
         <AppBridgeProvider>
           <QueryProvider>
-            {showLayout ?
-              <div className="main-section">
-                <div className="menu-section">
-                  <NavigationBar />
-                </div>
-                <div className="content-section">
-                  <TopBar />
-                  <Routes pages={pages} />
-                </div>
-              </div> : <Skeleton />
-            }
+            <Frame>
+              {showLayout ?
+                <div className="main-section">
+                  <div className="menu-section">
+                    <NavigationBar />
+                  </div>
+                  <div className="content-section">
+                    <TopBar />
+                    <Routes pages={pages} />
+                  </div>
+                </div> : <Skeleton />
+              }
+            </Frame>
           </QueryProvider>
         </AppBridgeProvider>
       </BrowserRouter>
