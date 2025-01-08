@@ -4,6 +4,8 @@ import { Tag, ProductTag } from '../models/index.js';
 
 const router = express.Router();
 
+
+// POSTGRESQL DATABASE ROUTES
 router.post('/api/tags', async (req, res) => {
     const { name } = req.body;
     const session = res.locals.shopify.session;
@@ -31,6 +33,7 @@ router.get('/api/tags', async (req, res) => {
     }
 });
 
+// SHOPIFY API ROUTES
 // Update the get route as well
 router.get('/api/products/:productId/tags', async (req, res) => {
     const { productId } = req.params;
