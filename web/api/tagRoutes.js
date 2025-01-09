@@ -1,11 +1,13 @@
 import express from 'express';
 import shopify from '../shopify.js';
 import { Tag, ProductTag } from '../models/index.js';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const router = express.Router();
 
-
 // POSTGRESQL DATABASE ROUTES
+// for user created tags 
 router.post('/api/tags', async (req, res) => {
     const { name } = req.body;
     const session = res.locals.shopify.session;
@@ -21,6 +23,7 @@ router.post('/api/tags', async (req, res) => {
     }
 });
 
+// to fetch all the postgresql database tags
 router.get('/api/tags', async (req, res) => {
     const session = res.locals.shopify.session;
     try {
@@ -33,116 +36,69 @@ router.get('/api/tags', async (req, res) => {
     }
 });
 
-// SHOPIFY API ROUTES
-// Update the get route as well
-router.get('/api/products/:productId/tags', async (req, res) => {
-    const { productId } = req.params;
-    const session = res.locals.shopify.session;
-
+// Update product tags
+router.put('/api/products/:id/tags', async (req, res) => {
     try {
-        const client = new shopify.api.clients.Rest({
-            session: session,
-            apiVersion: '2025-01'  // Explicitly set API version
+        const { id } = req.params;
+        const { tags } = req.body;
+
+        const product = new shopify.api.rest.Product({
+            session: res.locals.shopify.session,
         });
 
-        const product = await client.get({
-            path: 'products',
-            query: { id: productId },
-            apiVersion: '2025-01'
+        product.id = id;
+        product.tags = tags;
+
+        await product.save({
+            update: true,
         });
 
-        const tags = product.body.product.tags ?
-            product.body.product.tags.split(', ') : [];
-
-        const formattedTags = await Tag.findAll({
-            where: {
-                name: tags,
-                shopDomain: session.shop
-            }
-        });
-
-        res.json(formattedTags);
+        res.json({ success: true, tags });
     } catch (error) {
-        console.error('Error fetching product tags:', error);
+        console.error('Error updating product tags:', error);
+        res.status(500).json({ error: 'Failed to update product tags' });
+    }
+});
+
+router.get('/api/proxy/products.json', async (req, res) => {
+    try {
+        const response = await shopify.api.rest.Product.all({
+            session: res.locals.shopify.session,
+        });
+        res.status(200).json({ products: response.data });
+    } catch (error) {
+        console.error('Error fetching products:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
-// Add tag to product
-router.post('/api/products/:productId/tags', async (req, res) => {
-    const { productId } = req.params;
-    const { tagId } = req.body;
-    const session = res.locals.shopify.session;
-
+// Proxy route for updating a product
+router.put('/api/proxy/products/:id.json', async (req, res) => {
     try {
-        // Find the tag in database
-        const tag = await Tag.findOne({
-            where: {
-                id: tagId,
-                shopDomain: session.shop
-            }
+        const { id } = req.params;
+        const { product } = req.body;
+
+        const updatedProduct = new shopify.api.rest.Product({
+            session: res.locals.shopify.session,
         });
 
-        if (!tag) {
-            return res.status(404).json({ error: 'Tag not found' });
-        }
+        updatedProduct.id = id;
+        updatedProduct.tags = product.tags;
 
-        // Create Shopify client
-        const client = new shopify.api.clients.Rest({
-            session: session
+        await updatedProduct.save({
+            update: true,
         });
 
-        // Get current product from Shopify
-        const productResponse = await client.get({
-            path: `products/${productId}`
+        // Fetch the updated product to return
+        const response = await shopify.api.rest.Product.find({
+            session: res.locals.shopify.session,
+            id: id,
         });
 
-        // Parse existing tags
-        const currentTags = productResponse.body.product.tags ?
-            productResponse.body.product.tags.split(', ') : [];
-
-        // Add new tag if it doesn't exist
-        if (!currentTags.includes(tag.name)) {
-            currentTags.push(tag.name);
-
-            // Update product tags in Shopify
-            await client.put({
-                path: `products/${productId}`,
-                data: {
-                    product: {
-                        id: productId,
-                        tags: currentTags.join(', ')
-                    }
-                }
-            });
-        }
-
-        // Create product-tag association in database
-        await ProductTag.findOrCreate({
-            where: {
-                shopifyProductId: productId,
-                tagId: tag.id,
-                shopDomain: session.shop
-            }
-        });
-
-        // Get all tags for the product
-        const productTags = await Tag.findAll({
-            include: [{
-                model: ProductTag,
-                as: 'productTags',
-                where: {
-                    shopifyProductId: productId,
-                    shopDomain: session.shop
-                }
-            }]
-        });
-
-        res.status(200).json(productTags);
+        res.status(200).json({ product: response });
     } catch (error) {
-        console.error('Error adding tag:', error);
+        console.error('Error updating product:', error);
         res.status(500).json({ error: error.message });
     }
 });
-
 export default router;

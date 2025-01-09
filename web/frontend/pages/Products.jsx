@@ -11,7 +11,7 @@ import {
   Banner,
   Toast
 } from '@shopify/polaris';
-import { useAuthenticatedFetch } from '@shopify/app-bridge-react';
+import { useAuthenticatedFetch } from '../hooks/useAuthenticatedFetch'
 import SearchIcon from '@mui/icons-material/Search';
 
 function Products() {
@@ -26,35 +26,30 @@ function Products() {
   const [toastMessage, setToastMessage] = useState('');
   const [isToastActive, setIsToastActive] = useState(false);
 
+
   // Fetch all products
   useEffect(() => {
+    console.log('Products component mounted');
     fetchProducts();
     fetchAvailableTags();
   }, []);
 
-  const fetchProducts = async () => {
-    try {
-      const response = await fetch('/api/products/all');
-      if (!response.ok) throw new Error('Failed to fetch products');
-      const data = await response.json();
-      setProducts(data.data || []);
+  useEffect(() => {
+    console.log('Current availableTags:', availableTags);
+  }, [availableTags]);
 
-      // Fetch tags for each product
-      data.data.forEach(product => {
-        fetchProductTags(product.id);
-      });
-    } catch (error) {
-      setError(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    console.log('Current productTags:', productTags);
+  }, [productTags]);
 
   const fetchAvailableTags = async () => {
+    console.log('Fetching available tags...');
     try {
       const response = await fetch('/api/tags');
+      console.log('Tags API response:', response);
       if (!response.ok) throw new Error('Failed to fetch tags');
       const tags = await response.json();
+      console.log('Received tags:', tags);
       setAvailableTags(Array.isArray(tags) ? tags : []);
     } catch (error) {
       console.error('Error fetching tags:', error);
@@ -65,7 +60,7 @@ function Products() {
   const fetchProductTags = async (productId) => {
     setLoadingTags(prev => ({ ...prev, [productId]: true }));
     try {
-      const response = await fetch(`/api/products/${productId}/tags`);
+      const response = await fetch(`admin/api/products/${productId}/tags`);
       if (!response.ok) throw new Error('Failed to fetch product tags');
       const tags = await response.json();
       setProductTags(prev => ({
@@ -79,6 +74,7 @@ function Products() {
       setLoadingTags(prev => ({ ...prev, [productId]: false }));
     }
   };
+  // In your Products.jsx
   const renderTagSelector = (productId) => {
     const currentTags = productTags[productId] || [];
     const filteredTags = availableTags.filter(tag =>
@@ -92,47 +88,54 @@ function Products() {
           <Combobox.TextField
             prefix={<SearchIcon />}
             value={searchValue[productId] || ''}
-            onChange={(value) => updateSearchText(productId, value)}
+            onChange={(value) => {
+              console.log('Search value changed:', value);
+              updateSearchText(productId, value);
+            }}
             placeholder="Search and add tags"
           />
         }
         onSelect={(selected) => {
-          console.log('Selected value:', selected);
-          const selectedTag = filteredTags.find(tag => tag.name === selected);
+          console.log('Selected value in Combobox:', selected);
+          const selectedTag = availableTags.find(tag => tag.name === selected);
           if (selectedTag) {
-            console.log('Adding tag:', selectedTag);
             addTagToProduct(productId, selectedTag.id);
           }
         }}
       >
-        {filteredTags.length > 0 ? (
-          <ActionList
-            items={filteredTags.map(tag => ({
-              content: tag.name,
-              value: tag.name // This is important for the onSelect handler
-            }))}
-          />
-        ) : (
-          <ActionList
-            items={[{ content: 'No tags found', disabled: true }]}
-          />
-        )}
+        <ActionList
+          items={
+            filteredTags.length > 0
+              ? filteredTags.map(tag => ({
+                content: tag.name,
+                onAction: () => {
+                  console.log('Tag clicked:', tag);
+                  addTagToProduct(productId, tag.id);
+                }
+              }))
+              : [{ content: 'No tags found', disabled: true }]
+          }
+        />
       </Combobox>
     );
   };
+
 
   const addTagToProduct = async (productId, tagId) => {
     console.log('Starting to add tag. ProductId:', productId, 'TagId:', tagId);
     setLoadingTags(prev => ({ ...prev, [productId]: true }));
 
     try {
-      const response = await fetch(`/api/products/${productId}/tags`, {
+      const response = await fetch(`/admin/api/products/${productId}/tags`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
+        },
         body: JSON.stringify({ tagId })
       });
 
-      console.log('Response status:', response.status);
+      console.log('Add tag response:', response);
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -162,7 +165,7 @@ function Products() {
   const removeTagFromProduct = async (productId, tagId) => {
     setLoadingTags(prev => ({ ...prev, [productId]: true }));
     try {
-      const response = await fetch(`/api/products/${productId}/tags/${tagId}`, {
+      const response = await fetch(`admin/api/products/${productId}/tags/${tagId}`, {
         method: 'DELETE',
       });
 
@@ -177,6 +180,30 @@ function Products() {
       showToast(`Failed to remove tag: ${error.message}`);
     } finally {
       setLoadingTags(prev => ({ ...prev, [productId]: false }));
+    }
+  };
+
+
+  const fetchProducts = async () => {
+    try {
+      console.log('Fetching products...');
+      const response = await fetch('/api/products/all');
+      console.log('Products API response:', response);
+      if (!response.ok) throw new Error('Failed to fetch products');
+      const data = await response.json();
+      console.log('Received products:', data);
+      setProducts(data.data || []);
+
+      // Fetch tags for each product
+      data.data.forEach(product => {
+        console.log('Fetching tags for product:', product.id);
+        fetchProductTags(product.id);
+      });
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -243,8 +270,10 @@ function Products() {
                     />
                     <h2 className="text-lg font-semibold mb-2">{product.title}</h2>
                     <p className="text-base">
+
                       ${parseFloat(product.variants[0]?.price || 0).toFixed(2)}
                     </p>
+                    <p>{product.tags}</p>
                   </div>
 
                   <div className="mt-4">

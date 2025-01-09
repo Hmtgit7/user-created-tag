@@ -17,4 +17,5 @@ dist/
 yarn.lock
 package-lock.json
 
-web/frontend/pages/Product.jsx
+# Unneccessary File
+commented.jsx

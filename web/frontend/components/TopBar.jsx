@@ -1,19 +1,3 @@
-// import React from 'react'
-// import { NavLink } from 'react-router-dom'
-
-// export function TopBar() {
-//     return (
-//         <div className='topbar-section'>
-//             <div className="logo-block">
-//                 <img className='logo' src="../assets/home-trophy.png" alt="logo image" />
-//                 <h1 className='text-bold h4'>Shop Dashboard</h1>
-//                 <NavLink to="/"> Sales </NavLink>
-//                 <NavLink to="/products"> Products </NavLink>
-//             </div>
-//         </div>
-//     )
-// }
-
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Modal, TextContainer, TextField, Button } from '@shopify/polaris';
@@ -50,6 +34,7 @@ export function TopBar() {
                 <img className='logo' src="../assets/home-trophy.png" alt="Logo Image" />
                 <NavLink to="/" className="text-bold text-medium">Sales</NavLink>
                 <NavLink to="/products" className="text-bold text-medium">Products</NavLink>
+                <NavLink to="/productpage" className="text-bold text-medium">Product Page</NavLink>
                 <button
                     onClick={() => setIsTagModalOpen(true)}
                     className="text-bold text-medium button-tag"
