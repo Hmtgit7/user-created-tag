@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "48a0f5e2ec6e42fae077af3ea19bb608"
-application_url = "https://considering-switched-just-anderson.trycloudflare.com"
+application_url = "https://user-created-tag.onrender.com"
 embedded = true
 name = "user-created-tag"
 handle = "user-created-tag"
@@ -15,9 +15,9 @@ scopes = "write_products,write_customers,write_orders, write_draft_orders, write
 
 [auth]
 redirect_urls = [
-  "https://considering-switched-just-anderson.trycloudflare.com/auth/callback",
-  "https://considering-switched-just-anderson.trycloudflare.com/auth/shopify/callback",
-  "https://considering-switched-just-anderson.trycloudflare.com/api/auth/callback"
+  "https://user-created-tag.onrender.com/auth/callback",
+  "https://user-created-tag.onrender.com/auth/shopify/callback",
+  "https://user-created-tag.onrender.com/api/auth/callback"
 ]
 
 [pos]
