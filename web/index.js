@@ -16,7 +16,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const PORT = parseInt(
-  process.env.BACKEND_PORT || process.env.PORT || "3000",
+  process.env.BACKEND_PORT || process.env.PORT || "5000",
   10
 );
 
@@ -90,7 +90,6 @@ app.post("/api/products", async (_req, res) => {
   }
   res.status(status).send({ success: status === 200, error });
 });
-
 
 async function authenticateUser(req, res, next) {
   let shop = req.query.shop;
@@ -228,15 +227,34 @@ app.get("/api/products/create", async (_req, res) => {
 app.use(shopify.cspHeaders());
 app.use(serveStatic(STATIC_PATH, { index: false }));
 
+// app.use("/*", shopify.ensureInstalledOnShop(), async (_req, res, _next) => {
+//   return res
+//     .status(200)
+//     .set("Content-Type", "text/html")
+//     .send(
+//       readFileSync(join(STATIC_PATH, "index.html"))
+//         .toString()
+//         .replace("%VITE_SHOPIFY_API_KEY%", process.env.SHOPIFY_API_KEY || "")
+//     );
+// });
+
+
 app.use("/*", shopify.ensureInstalledOnShop(), async (_req, res, _next) => {
-  return res
-    .status(200)
-    .set("Content-Type", "text/html")
-    .send(
-      readFileSync(join(STATIC_PATH, "index.html"))
-        .toString()
-        .replace("%VITE_SHOPIFY_API_KEY%", process.env.SHOPIFY_API_KEY || "")
-    );
+  const htmlFile = join(STATIC_PATH, "index.html");
+  
+  try {
+    const indexContent = readFileSync(htmlFile, "utf8")
+      .replace(/%SHOPIFY_API_KEY%/g, process.env.SHOPIFY_API_KEY || "")
+      .replace(/%HOST%/g, process.env.HOST || "");
+      
+    res
+      .status(200)
+      .set("Content-Type", "text/html")
+      .send(indexContent);
+  } catch (error) {
+    console.error(`Failed to read index.html: ${error}`);
+    res.status(500).send("Error loading application");
+  }
 });
 
 // app.listen(PORT);
