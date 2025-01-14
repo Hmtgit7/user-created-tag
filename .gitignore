@@ -31,5 +31,6 @@ web/database.sqlite
 .shopify/*
 .shopify.lock
 
+# Ignore toml files
+.toml
 
-/routes
