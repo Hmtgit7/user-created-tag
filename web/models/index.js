@@ -1,8 +1,8 @@
-// models/index.js
-
+// web/models/index.js - Update with Store model
 import { Sequelize } from 'sequelize';
 import TagModel from './Tag.js';
 import ProductTagModel from './ProductTag.js';
+import StoreModel from './Store.js';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -41,6 +41,7 @@ const sequelize = new Sequelize(DATABASE_URL, {
 // Initialize models
 const Tag = TagModel(sequelize);
 const ProductTag = ProductTagModel(sequelize);
+const Store = StoreModel(sequelize);
 
 // Set up associations
 Tag.hasMany(ProductTag, {
@@ -52,15 +53,26 @@ ProductTag.belongsTo(Tag, {
   foreignKey: 'tagId',
 });
 
+// Add Store associations
+Store.hasMany(Tag, {
+  foreignKey: 'shopDomain',
+  sourceKey: 'shopDomain',
+  onDelete: 'CASCADE'
+});
+
+Tag.belongsTo(Store, {
+  foreignKey: 'shopDomain',
+  targetKey: 'shopDomain'
+});
+
 const initializeDatabase = async () => {
   try {
     await sequelize.authenticate();
     console.log('Database connection established.');
 
-    // In production, you might want to avoid force sync
     const syncOptions = {
-      force: false, // Changed to false to prevent data loss
-      alter: process.env.NODE_ENV === 'development' // Use alter in development instead
+      force: false,
+      alter: process.env.NODE_ENV === 'development'
     };
 
     await sequelize.sync(syncOptions);
@@ -71,4 +83,4 @@ const initializeDatabase = async () => {
   }
 };
 
-export { Tag, ProductTag, sequelize, initializeDatabase };
+export { Tag, ProductTag, Store, sequelize, initializeDatabase };
