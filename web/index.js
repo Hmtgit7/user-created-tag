@@ -12,6 +12,9 @@ import PrivacyWebhookHandlers from "./privacy.js";
 import { sequelize } from './models/index.js';
 import tagRoutes from './routes/tagRoutes.js';
 
+import { verifyAndStoreSession } from './middleware/multistore-auth.js';
+import storeManagementRoutes from './routes/store-management.js';
+
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -47,6 +50,7 @@ app.use("/api/*", shopify.validateAuthenticatedSession());
 app.use(express.json());
 
 
+
 // Initialize database and models
 try {
   await sequelize.authenticate();
@@ -57,7 +61,10 @@ try {
   console.error('Unable to connect to the database:', err);
 }
 
+app.use(verifyAndStoreSession);
 
+// Add store management routes
+app.use(storeManagementRoutes);
 // Add tag routes
 app.use(tagRoutes);
 
@@ -241,12 +248,12 @@ app.use(serveStatic(STATIC_PATH, { index: false }));
 
 app.use("/*", shopify.ensureInstalledOnShop(), async (_req, res, _next) => {
   const htmlFile = join(STATIC_PATH, "index.html");
-  
+
   try {
     const indexContent = readFileSync(htmlFile, "utf8")
       .replace(/%SHOPIFY_API_KEY%/g, process.env.SHOPIFY_API_KEY || "")
       .replace(/%HOST%/g, process.env.HOST || "");
-      
+
     res
       .status(200)
       .set("Content-Type", "text/html")
