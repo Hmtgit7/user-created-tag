@@ -4,3 +4,5 @@ export { NavigationBar } from "./NavigationBar";
 export { TopBar } from "./TopBar";
 export { Card } from "./Card";
 export {Skeleton} from "./Skeleton";
+export { OrderDetails } from "./OrderDetails";
+export { OrderGraphs } from "./OrderGraphs";

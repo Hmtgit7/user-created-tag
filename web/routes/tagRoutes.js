@@ -36,6 +36,33 @@ router.get('/api/tags', async (req, res) => {
     }
 });
 
+router.delete('/api/tags/:id', async (req, res) => {
+    const { id } = req.params;
+    const session = res.locals.shopify.session;
+
+    try {
+        // First verify the tag belongs to this shop
+        const tag = await Tag.findOne({
+            where: {
+                id: id,
+                shopDomain: session.shop
+            }
+        });
+
+        if (!tag) {
+            return res.status(404).json({ error: 'Tag not found' });
+        }
+
+        // Delete the tag
+        await tag.destroy();
+
+        res.status(200).json({ message: 'Tag deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting tag:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // Update product tags
 router.put('/api/products/:id/tags', async (req, res) => {
     try {

@@ -10,7 +10,7 @@ import PrivacyWebhookHandlers from "./privacy.js";
 
 // index.js - Add these imports at the top
 import { sequelize } from './models/index.js';
-import tagRoutes from './api/tagRoutes.js';
+import tagRoutes from './routes/tagRoutes.js';
 
 import dotenv from "dotenv";
 dotenv.config();
