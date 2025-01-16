@@ -34,3 +34,4 @@ web/database.sqlite
 # Ignore toml files
 *.toml
 
+migrations

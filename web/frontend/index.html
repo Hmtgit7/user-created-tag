@@ -16,12 +16,13 @@
         document.getElementsByTagName('head')[0].append(script);
       }
     </script>
-
-    <meta name="shopify-api-key" content="48a0f5e2ec6e42fae077af3ea19bb608" />
+    <meta name="shopify-api-key" content="%SHOPIFY_API_KEY%" />
+    <meta name="shopify-host" content="%HOST%" />
+    <!-- <meta name="shopify-api-key" content="48a0f5e2ec6e42fae077af3ea19bb608" /> -->
     <script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></script>
   </head>
   <body>
     <div id="app"><!--index.jsx injects App.jsx here--></div>
-    <script type="module" src="/index.jsx"></script>
+    <script type="module" src="/index.jsx"></script>  
   </body>
 </html>
