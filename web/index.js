@@ -227,37 +227,16 @@ app.get("/api/products/create", async (_req, res) => {
 app.use(shopify.cspHeaders());
 app.use(serveStatic(STATIC_PATH, { index: false }));
 
-// app.use("/*", shopify.ensureInstalledOnShop(), async (_req, res, _next) => {
-//   return res
-//     .status(200)
-//     .set("Content-Type", "text/html")
-//     .send(
-//       readFileSync(join(STATIC_PATH, "index.html"))
-//         .toString()
-//         .replace("%VITE_SHOPIFY_API_KEY%", process.env.SHOPIFY_API_KEY || "")
-//     );
-// });
-
-
 app.use("/*", shopify.ensureInstalledOnShop(), async (_req, res, _next) => {
-  const htmlFile = join(STATIC_PATH, "index.html");
-  
-  try {
-    const indexContent = readFileSync(htmlFile, "utf8")
-      .replace(/%SHOPIFY_API_KEY%/g, process.env.SHOPIFY_API_KEY || "")
-      .replace(/%HOST%/g, process.env.HOST || "");
-      
-    res
-      .status(200)
-      .set("Content-Type", "text/html")
-      .send(indexContent);
-  } catch (error) {
-    console.error(`Failed to read index.html: ${error}`);
-    res.status(500).send("Error loading application");
-  }
+  return res
+    .status(200)
+    .set("Content-Type", "text/html")
+    .send(
+      readFileSync(join(STATIC_PATH, "index.html"))
+        .toString()
+        .replace("%VITE_SHOPIFY_API_KEY%", process.env.SHOPIFY_API_KEY || "")
+    );
 });
-
-// app.listen(PORT);
 
 app.listen(PORT, () => {
   console.log(`Shopify app listening on port ${PORT}`);
