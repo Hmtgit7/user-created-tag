@@ -1,6 +1,6 @@
 import express from 'express';
 import { Tag, ProductTag } from '../models/index.js';
-import shopify from '../shopify.js';
+import {shopify} from '../shopify.js';
 const router = express.Router();
 import dotenv from 'dotenv';
 dotenv.config();
