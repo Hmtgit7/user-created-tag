@@ -126,7 +126,7 @@ export function TopBar() {
                 <img className='logo' src="../assets/home-trophy.png" alt="Logo Image" />
                 <NavLink to="/" className="text-bold text-medium">Sales</NavLink>
                 {/* <NavLink to="/products" className="text-bold text-medium">Products</NavLink> */}
-                <NavLink to="/products" className="text-bold text-medium">Product Page</NavLink>
+                <NavLink to="/productpage" className="text-bold text-medium">Product Page</NavLink>
                 <button
                     onClick={() => setIsTagModalOpen(true)}
                     className="text-bold text-medium button-tag"

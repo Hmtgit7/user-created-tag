@@ -30,7 +30,7 @@ export default function App() {
           <Frame>
             <NavMenu>
               <a href="/" rel="home" />
-              <a href="/products">Products</a>
+              <a href="/productpage">Products</a>
               {/* <a href="/pagename">{t("NavigationMenu.pageName")}</a> */}
             </NavMenu>
             {showLayout ?
