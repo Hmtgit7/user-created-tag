@@ -1,26 +1,18 @@
-// @ts-check
+// // @ts-check
 import { join } from "path";
 import { readFileSync } from "fs";
 import express from "express";
 import serveStatic from "serve-static";
-import dotenv from "dotenv";
-dotenv.config();
-
-import shopify from "./shopify.js";
+import { shopify } from "./shopify.js";
 import productCreator from "./product-creator.js";
-import PrivacyWebhookHandlers from "./privacy.js";
+import { webhookHandlers } from "./webhook/handler.js";
 import { sequelize } from "./models/index.js";
 import tagRoutes from "./routes/tagRoutes.js";
 
-const PORT = parseInt(
-  process.env.BACKEND_PORT || process.env.PORT || "3000",
-  10
-);
-
-const STATIC_PATH =
-  process.env.NODE_ENV === "production"
-    ? `${process.cwd()}/frontend/dist`
-    : `${process.cwd()}/frontend/`;
+const PORT = parseInt(process.env.BACKEND_PORT || process.env.PORT || "3000", 10);
+const STATIC_PATH = process.env.NODE_ENV === "production"
+  ? `${process.cwd()}/frontend/dist`
+  : `${process.cwd()}/frontend/`;
 
 const app = express();
 
@@ -31,28 +23,35 @@ app.get(
   shopify.auth.callback(),
   shopify.redirectToShopifyOrAppRoot()
 );
+
+// Set up webhooks - now with proper delivery method
 app.post(
   shopify.config.webhooks.path,
-  shopify.processWebhooks({ webhookHandlers: PrivacyWebhookHandlers })
+  shopify.processWebhooks({ webhookHandlers })
 );
 
-// If you are adding routes outside of the /api path, remember to
-// also add a proxy rule for them in web/frontend/vite.config.js
-
+// All /api/* routes should be authenticated
 app.use("/api/*", shopify.validateAuthenticatedSession());
 
 app.use(express.json());
 
 // Initialize database and models
-try {
-  await sequelize.authenticate();
-  console.log('Database connected successfully');
-  await sequelize.sync(); // This creates/updates tables
-  console.log('Models synchronized successfully');
-} catch (err) {
-  console.error('Unable to connect to the database:', err);
-}
+const initializeApp = async () => {
+  try {
+    await sequelize.authenticate();
+    console.log('Database connected successfully');
+    await sequelize.sync();
+    console.log('Models synchronized successfully');
 
+    // Register webhooks after database is initialized
+    await shopify.api.webhooks.addHandlers(webhookHandlers);
+  } catch (err) {
+    console.error('Unable to initialize application:', err);
+    process.exit(1);
+  }
+};
+
+// Your existing routes
 app.get("/api/products/count", async (_req, res) => {
   const client = new shopify.api.clients.Graphql({
     session: res.locals.shopify.session,
@@ -83,6 +82,7 @@ app.post("/api/products", async (_req, res) => {
   res.status(status).send({ success: status === 200, error });
 });
 
+// Use tag routes
 app.use(tagRoutes);
 
 app.use(shopify.cspHeaders());
@@ -92,13 +92,14 @@ app.use("/*", shopify.ensureInstalledOnShop(), async (_req, res, _next) => {
   return res
     .status(200)
     .set("Content-Type", "text/html")
-    .send(
-      readFileSync(join(STATIC_PATH, "index.html"))
-        .toString()
-        .replace("%VITE_SHOPIFY_API_KEY%", process.env.SHOPIFY_API_KEY || "")
-    );
+    .send(readFileSync(join(STATIC_PATH, "index.html"))
+    .toString()
+    .replace("%VITE_SHOPIFY_API_KEY%", process.env.SHOPIFY_API_KEY || ""));
 });
 
-app.listen(PORT, () => {
-  console.log(`App listening on port ${PORT}`);
+// Initialize app and start server
+initializeApp().then(() => {
+  app.listen(PORT, () => {
+    console.log(`App listening on port ${PORT}`);
+  });
 });
