@@ -1,8 +1,6 @@
 export { ProductsCard } from "./ProductsCard";
 export * from "./providers";
-export { NavigationBar } from "./NavigationBar";
 export { TopBar } from "./TopBar";
 export { Card } from "./Card";
+export {NavigationBar} from "./NavigationBar";
 export {Skeleton} from "./Skeleton";
-export { OrderDetails } from "./OrderDetails";
-export { OrderGraphs } from "./OrderGraphs";

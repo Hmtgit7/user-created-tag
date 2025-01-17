@@ -1,5 +1,5 @@
 {
-  "name": "user-created-tag",
+  "name": "create-own-tags",
   "version": "1.0.0",
   "main": "web/index.js",
   "license": "UNLICENSED",
@@ -11,14 +11,12 @@
     "generate": "shopify app generate",
     "deploy": "shopify app deploy"
   },
+  "dependencies": {},
   "author": "sunil",
   "private": true,
   "workspaces": [
     "extensions/*",
     "web",
     "web/frontend"
-  ],
-  "dependencies": {
-    "dotenv": "^16.4.7"
-  }
+  ]
 }

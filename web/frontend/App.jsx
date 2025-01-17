@@ -2,10 +2,10 @@ import { BrowserRouter } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { NavMenu } from "@shopify/app-bridge-react";
 import Routes from "./Routes";
-import { Frame } from '@shopify/polaris';
+import './App.css';
 
-import { QueryProvider, PolarisProvider, NavigationBar, AppBridgeProvider, Skeleton } from "./components";
-import { TopBar } from "./components";
+import { QueryProvider, PolarisProvider, TopBar, NavigationBar, Skeleton } from "./components";
+import { Frame } from "@shopify/polaris";
 import { useEffect, useState } from "react";
 
 export default function App() {
@@ -24,26 +24,28 @@ export default function App() {
   }, [showLayout]);
 
   return (
-
     <PolarisProvider>
       <BrowserRouter>
-        <AppBridgeProvider>
-          <QueryProvider>
-            <Frame>
-              {showLayout ?
-                <div className="main-section">
-                  <div className="menu-section">
-                    <NavigationBar />
-                  </div>
-                  <div className="content-section">
-                    <TopBar />
-                    <Routes pages={pages} />
-                  </div>
-                </div> : <Skeleton />
-              }
-            </Frame>
-          </QueryProvider>
-        </AppBridgeProvider>
+        <QueryProvider>
+          <Frame>
+            <NavMenu>
+              <a href="/" rel="home" />
+              <a href="/products">Products</a>
+              {/* <a href="/pagename">{t("NavigationMenu.pageName")}</a> */}
+            </NavMenu>
+            {showLayout ?
+              <div className="main-section">
+                <div className="menu-section">
+                  <NavigationBar />
+                </div>
+                <div className="content-section">
+                  <TopBar />
+                  <Routes pages={pages} />
+                </div>
+              </div> : <Skeleton />
+            }
+          </Frame>
+        </QueryProvider>
       </BrowserRouter>
     </PolarisProvider>
   );

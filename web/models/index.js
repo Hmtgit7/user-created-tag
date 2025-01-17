@@ -9,33 +9,33 @@ dotenv.config();
 const DATABASE_URL = process.env.DATABASE_URL;
 
 const sequelize = new Sequelize(DATABASE_URL, {
-  dialect: 'postgres',
-  logging: false,
-  dialectOptions: {
-    ssl: {
-      require: true,
-      rejectUnauthorized: false
+    dialect: 'postgres',
+    logging: false,
+    dialectOptions: {
+        ssl: {
+            require: true,
+            rejectUnauthorized: false
+        },
     },
-  },
-  pool: {
-    max: 5,
-    min: 0,
-    acquire: 30000,
-    idle: 10000
-  },
-  retry: {
-    match: [
-      /SequelizeConnectionError/,
-      /SequelizeConnectionRefusedError/,
-      /SequelizeHostNotFoundError/,
-      /SequelizeHostNotReachableError/,
-      /SequelizeInvalidConnectionError/,
-      /SequelizeConnectionTimedOutError/,
-      /TimeoutError/,
-      /ECONNRESET/
-    ],
-    max: 3
-  }
+    pool: {
+        max: 5,
+        min: 0,
+        acquire: 30000,
+        idle: 10000
+    },
+    retry: {
+        match: [
+            /SequelizeConnectionError/,
+            /SequelizeConnectionRefusedError/,
+            /SequelizeHostNotFoundError/,
+            /SequelizeHostNotReachableError/,
+            /SequelizeInvalidConnectionError/,
+            /SequelizeConnectionTimedOutError/,
+            /TimeoutError/,
+            /ECONNRESET/
+        ],
+        max: 3
+    }
 });
 
 // Initialize models
@@ -44,31 +44,31 @@ const ProductTag = ProductTagModel(sequelize);
 
 // Set up associations
 Tag.hasMany(ProductTag, {
-  foreignKey: 'tagId',
-  onDelete: 'CASCADE',
+    foreignKey: 'tagId',
+    onDelete: 'CASCADE',
 });
 
 ProductTag.belongsTo(Tag, {
-  foreignKey: 'tagId',
+    foreignKey: 'tagId',
 });
 
 const initializeDatabase = async () => {
-  try {
-    await sequelize.authenticate();
-    console.log('Database connection established.');
+    try {
+        await sequelize.authenticate();
+        console.log('Database connection established.');
 
-    // In production, you might want to avoid force sync
-    const syncOptions = {
-      force: false, // Changed to false to prevent data loss
-      alter: process.env.NODE_ENV === 'development' // Use alter in development instead
-    };
+        // In production, you might want to avoid force sync
+        const syncOptions = {
+            force: false, // Changed to false to prevent data loss
+            alter: process.env.NODE_ENV === 'development' // Use alter in development instead
+        };
 
-    await sequelize.sync(syncOptions);
-    console.log('Database models synchronized.');
-  } catch (error) {
-    console.error('Database initialization error:', error);
-    throw error;
-  }
+        await sequelize.sync(syncOptions);
+        console.log('Database models synchronized.');
+    } catch (error) {
+        console.error('Database initialization error:', error);
+        throw error;
+    }
 };
 
 export { Tag, ProductTag, sequelize, initializeDatabase };

@@ -1,179 +1,6 @@
-// import React, { useState } from 'react';
-// import { NavLink } from 'react-router-dom';
-// import { Modal, TextContainer, TextField, Button } from '@shopify/polaris';
-// import { useAuthenticatedFetch } from '@shopify/app-bridge-react';
-// import LocalOfferIcon from '@mui/icons-material/LocalOffer';
-
-// export function TopBar() {
-//     const [isTagModalOpen, setIsTagModalOpen] = useState(false);
-//     const [tagName, setTagName] = useState('');
-//     const fetch = useAuthenticatedFetch();
-
-//     const handleCreateTag = async () => {
-//         try {
-//             const response = await fetch('/api/tags', {
-//                 method: 'POST',
-//                 headers: {
-//                     'Content-Type': 'application/json',
-//                 },
-//                 body: JSON.stringify({ name: tagName }),
-//             });
-
-//             if (response.ok) {
-//                 setTagName('');
-//                 setIsTagModalOpen(false);
-//             }
-//         } catch (error) {
-//             console.error('Error creating tag:', error);
-//         }
-//     };
-
-//     return (
-//         <div className='topbar-section'>
-//             <div className="logo-block">
-//                 <img className='logo' src="../assets/home-trophy.png" alt="Logo Image" />
-//                 <NavLink to="/" className="text-bold text-medium">Sales</NavLink>
-//                 <NavLink to="/products" className="text-bold text-medium">Products</NavLink>
-//                 <NavLink to="/productpage" className="text-bold text-medium">Product Page</NavLink>
-//                 <button
-//                     onClick={() => setIsTagModalOpen(true)}
-//                     className="text-bold text-medium button-tag"
-//                 >
-//                     <LocalOfferIcon /> Create Tag
-//                 </button>
-//             </div>
-
-//             <Modal
-//                 open={isTagModalOpen}
-//                 onClose={() => setIsTagModalOpen(false)}
-//                 title="Create New Tag"
-//             >
-//                 <Modal.Section>
-//                     <TextContainer>
-//                         <TextField
-//                             label="Tag Name"
-//                             value={tagName}
-//                             onChange={setTagName}
-//                             autoComplete="off"
-//                         />
-//                         <div style={{ marginTop: '1rem' }}>
-//                             <Button primary onClick={handleCreateTag}>Create Tag</Button>
-//                         </div>
-//                     </TextContainer>
-//                 </Modal.Section>
-//             </Modal>
-//         </div>
-//     );
-// }
-
-// import React, { useState, useEffect } from 'react';
-// import { NavLink } from 'react-router-dom';
-// import { Modal, TextContainer, TextField, Button } from '@shopify/polaris';
-// import { useAuthenticatedFetch } from '@shopify/app-bridge-react';
-// import LocalOfferIcon from '@mui/icons-material/LocalOffer';
-
-// export function TopBar() {
-//     const [isTagModalOpen, setIsTagModalOpen] = useState(false);
-//     const [tagName, setTagName] = useState('');
-//     const [tags, setTags] = useState([]);
-//     const fetch = useAuthenticatedFetch();
-
-//     const fetchTags = async () => {
-//         try {
-//             const response = await fetch('/api/tags');
-//             if (response.ok) {
-//                 const data = await response.json();
-//                 setTags(data);
-//             }
-//         } catch (error) {
-//             console.error('Error fetching tags:', error);
-//         }
-//     };
-
-//     const handleCreateTag = async () => {
-//         try {
-//             const response = await fetch('/api/tags', {
-//                 method: 'POST',
-//                 headers: {
-//                     'Content-Type': 'application/json',
-//                 },
-//                 body: JSON.stringify({ name: tagName }),
-//             });
-
-//             if (response.ok) {
-//                 setTagName('');
-//                 fetchTags(); // Refresh the tags list after creating a new tag
-//             }
-//         } catch (error) {
-//             console.error('Error creating tag:', error);
-//         }
-//     };
-
-//     // Fetch tags when modal opens
-//     useEffect(() => {
-//         if (isTagModalOpen) {
-//             fetchTags();
-//         }
-//     }, [isTagModalOpen]);
-
-//     return (
-//         <div className='topbar-section'>
-//             <div className="logo-block">
-//                 <img className='logo' src="../assets/home-trophy.png" alt="Logo Image" />
-//                 <NavLink to="/" className="text-bold text-medium">Sales</NavLink>
-//                 <NavLink to="/products" className="text-bold text-medium">Products</NavLink>
-//                 <NavLink to="/productpage" className="text-bold text-medium">Product Page</NavLink>
-//                 <button
-//                     onClick={() => setIsTagModalOpen(true)}
-//                     className="text-bold text-medium button-tag"
-//                 >
-//                     <LocalOfferIcon /> Create Tag
-//                 </button>
-//             </div>
-
-//             <Modal
-//                 open={isTagModalOpen}
-//                 onClose={() => setIsTagModalOpen(false)}
-//                 title="Create New Tag"
-//             >
-//                 <Modal.Section>
-//                     <TextContainer>
-//                         <TextField
-//                             label="Tag Name"
-//                             value={tagName}
-//                             onChange={setTagName}
-//                             autoComplete="off"
-//                         />
-//                         <div style={{ marginTop: '1rem' }}>
-//                             <Button primary onClick={handleCreateTag}>Create Tag</Button>
-//                         </div>
-
-//                         <div style={{ marginTop: '2rem' }}>
-//                             <h3>Available Tags</h3>
-//                             <div style={{ marginTop: '1rem' }}>
-//                                 {tags.length > 0 ? (
-//                                     tags.map((tag) => (
-//                                         <div key={tag.id} style={{ marginBottom: '0.5rem' }}>
-//                                             {tag.name}
-//                                         </div>
-//                                     ))
-//                                 ) : (
-//                                     <p>No tags available</p>
-//                                 )}
-//                             </div>
-//                         </div>
-//                     </TextContainer>
-//                 </Modal.Section>
-//             </Modal>
-//         </div>
-//     );
-// }
-
-
 import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Modal, TextContainer, TextField, Button } from '@shopify/polaris';
-import { useAuthenticatedFetch } from '@shopify/app-bridge-react';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
@@ -183,7 +10,7 @@ export function TopBar() {
     const [tagName, setTagName] = useState('');
     const [tags, setTags] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
-    const fetch = useAuthenticatedFetch();
+
 
     const fetchTags = async () => {
         try {
@@ -299,7 +126,7 @@ export function TopBar() {
                 <img className='logo' src="../assets/home-trophy.png" alt="Logo Image" />
                 <NavLink to="/" className="text-bold text-medium">Sales</NavLink>
                 {/* <NavLink to="/products" className="text-bold text-medium">Products</NavLink> */}
-                <NavLink to="/productpage" className="text-bold text-medium">Product Page</NavLink>
+                <NavLink to="/products" className="text-bold text-medium">Product Page</NavLink>
                 <button
                     onClick={() => setIsTagModalOpen(true)}
                     className="text-bold text-medium button-tag"
