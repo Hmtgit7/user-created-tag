@@ -3,6 +3,8 @@
 import { Sequelize } from 'sequelize';
 import TagModel from './Tag.js';
 import ProductTagModel from './ProductTag.js';
+import StoreModel from './Store.js';
+import SessionModel from './Session.js';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -41,6 +43,8 @@ const sequelize = new Sequelize(DATABASE_URL, {
 // Initialize models
 const Tag = TagModel(sequelize);
 const ProductTag = ProductTagModel(sequelize);
+const Store = StoreModel(sequelize);
+const Session = SessionModel(sequelize);
 
 // Set up associations
 Tag.hasMany(ProductTag, {
@@ -71,4 +75,4 @@ const initializeDatabase = async () => {
     }
 };
 
-export { Tag, ProductTag, sequelize, initializeDatabase };
+export { Tag, ProductTag, Store, Session, sequelize, initializeDatabase };
